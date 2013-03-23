@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe User do
   before do
-     @user = User.new(name: "Example user" , email: "eder.roger@gmail.com", password: "foobar", password_confirmation: "foobar") 
+     @user = User.new(name: "Example user" , email: "eder.roger@gmail.com", password: "foobar", password_confirmation: "foobar")
   end
 
   subject {@user}
@@ -14,9 +14,19 @@ describe User do
   it { should respond_to(:password_confirmation)}
   it { should respond_to(:remember_token)}
   it { should respond_to(:authenticate)}
+  it { should respond_to(:admin)}
 
 
   it {should be_valid}
+  it {should_not be_admin}
+
+  describe 'with admin attribute set to true' do
+    before do
+      @user.save!
+      @user.toggle!(:admin)
+    end
+    it{should be_admin}
+  end
 
   describe "when name is not present" do
   	before { @user.name = " "}
@@ -39,7 +49,7 @@ describe User do
 	    addresses.each do |invalid_address|
 	      @user.email  = invalid_address
 	      @user.should_not be_valid
-	    end    
+	    end
 	  end
 	end
 
@@ -49,17 +59,17 @@ describe User do
 	    addresses.each do |valid_address|
 	      @user.email  = valid_address
 	      @user.should be_valid
-	    end    
-	  end	
+	    end
+	  end
 	end
-    
+
     describe "When email is alread taken" do
       before do
          user_with_same_email  = @user.dup
          user_with_same_email.email = @user.email.upcase
          user_with_same_email.save
-       end 
-       it { should_not be_valid }  
+       end
+       it { should_not be_valid }
     end
 
   describe "When password is not present" do
@@ -71,7 +81,7 @@ describe User do
     before { @user.password_confirmation = "mismatch"}
     it { should_not be_valid}
   end
-  
+
   describe "When password comfirmation is nil" do
     before { @user.password_confirmation = nil }
     it { should_not be_valid}
@@ -79,19 +89,19 @@ describe User do
 
   describe "Return value of authenticate method" do
     before { @user.save }
-    let (:found_user) { User.find_by_email(@user.email)} 
+    let (:found_user) { User.find_by_email(@user.email)}
 
     describe "With valid password" do
       it { should == found_user.authenticate(@user.password) }
-    end  
-    
+    end
+
     describe "with invalid password" do
       let( :user_for_invalid_password) { found_user.authenticate("invalid")}
 
       it { should_not == user_for_invalid_password }
       specify { user_for_invalid_password.should be_false }
-    end 
-  end 
+    end
+  end
 
 
   describe "With password that's to short" do
