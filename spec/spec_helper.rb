@@ -1,3 +1,9 @@
+require 'simplecov'
+
+SimpleCov.start 'rails' do
+  add_filter 'vendor'
+end
+
 require 'rubygems'
 require 'spork'
 #uncomment the following line to use spork with the debugger
